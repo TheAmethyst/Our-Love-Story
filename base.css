@@ -1,0 +1,356 @@
+/* ОСНОВНОЕ */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: #000;
+    overflow-y: auto; /* Скролл только здесь */
+    min-height: 100vh;
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+body::after {
+    display: none;
+}
+
+
+
+/* ЦВЕТА */
+[data-theme="white"] { 
+    --header-bg: linear-gradient(135deg, #ee3f85 0%, #ef82b5 99%, #f6a0c5 100%);
+    --bg-color: #ffffff; 
+    --text-color: #000000; 
+    --accent-color: #ff4b5c; 
+    --menu-bg: rgba(245, 245, 245, 0.95); 
+    --nav-icon-color: #333333; /* Темные иконки на светлой шапке */
+    --year-color: #ffffff;          /* Цвет неактивных цифр */
+    --year-active-color: #ff4b5c;   /* Цвет выбранного года */
+    --year-bg-start: #f42a8f83;       /* Начальный цвет градиента фона */
+}
+
+
+
+/* ЭЛЕМЕНТЫ УПРАВЛЕНИЯ САЙТОМ */
+/* Скрытие элементов при отсутствии прав владельца */
+#mainControls, 
+.delete-btn-simple,  
+.timeline-delete-btn,
+.fullscreen-delete-btn {
+    display: none !important;
+}
+/* Показ элементов при наличии прав владельца */
+body.admin-mode #mainControls {
+    display: flex !important;
+}
+body.admin-mode .delete-btn-simple, 
+body.admin-mode .gallery-delete-btn, 
+body.admin-mode .timeline-delete-btn,
+body.admin-mode .fullscreen-delete-btn {
+    display: flex !important;
+}
+
+
+
+/* --- МЕНЮ ПРОФИЛЯ --- */
+.profile-menu-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 3000;
+}
+/* Аватарка */
+.avatar-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.3s ease;
+    padding: 0;
+}
+.avatar-btn:hover {
+    border-color: #000000; /* Сине-голубой акцент */
+}
+.avatar-btn .material-icons {
+    font-size: 24px;
+}
+.avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+
+/* МЕНЮШКА */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 50%, #f6a0c5 100%);
+    border-radius: 8px;
+    min-width: 160px;
+    flex-direction: column;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+.dropdown-menu.show {
+    display: flex;
+}
+.dropdown-item {
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    padding: 12px 15px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 750 !important; 
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.dropdown-item:hover {
+    color: #ededed;
+}
+#adminMenuSection {
+    display: none;
+}
+body.admin-mode #adminMenuSection {
+    display: block;
+}
+
+
+
+/* ===== НАСТРОЙКИ ЦВЕТА ОКНА ВХОДА И АККАУНТА ===== */
+/* 1. Фон самих окон */
+#loginModal .polaroid-frame,
+#accountModal .polaroid-frame {
+    background: #ffffff !important; /* Темный фон (измените HEX-код на нужный) */
+    color: #000000 !important;      /* Цвет обычного текста */
+}
+/* 2. Цвет заголовков */
+#loginModal h2,
+#accountModal h2 {
+    color: #000000 !important;
+}
+/* 3. Поля ввода (Email, Пароль) */
+#loginModal .polaroid-footer input,
+#accountModal .polaroid-footer input {
+    font-size: 18px;
+    font-weight: 600 !important; 
+    color: #000000 !important; /* Цвет текста, который вы печатаете */
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2) !important; /* Линия под полем */
+    border-radius: 0 !important; /* Убирает скругления для подчеркивания */
+    padding-left: 5px !important;
+}
+/* При наведении фокуса на поле ввода */
+#loginModal .polaroid-footer input:focus,
+#accountModal .polaroid-footer input:focus {
+    border-bottom: 2px solid #ee3f85 !important; /* Цвет линии при клике */
+}
+/* Цвет подсказок (плейсхолдеров) внутри полей */
+#loginModal .polaroid-footer input::placeholder,
+#accountModal .polaroid-footer input::placeholder {
+    color: rgba(0, 0, 0, 0.4) !important; 
+    font-size: 18px;
+    font-weight: 600 !important; 
+}
+/* 4. Кнопки действия (Войти / Обновить) */
+#loginModal .btn-save-polaroid,
+#accountModal .btn-save-polaroid {
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 99%, #f6a0c5 100%) !important; /* Фон кнопки */
+    color: #ffffff !important; /* Цвет текста на кнопке */
+    margin-top: 25px;
+}
+
+
+
+/* --- ФОРМЫ ДОБАВЛЕНИЯ --- */
+/* --- КАРКАС МОДАЛЬНОГО ОКНА --- */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+.polaroid-frame {
+    background: var(--bg-color);
+    padding: 25px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    border-radius: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+.close-outside {
+    position: absolute;
+    top: 0px;       /* Выравнивание по верхнему краю формы */
+    right: -45px;   /* Смещение вправо за пределы формы */
+    background: transparent;
+    color: #ffffff;
+    border: none;
+    font-size: 36px;
+    cursor: pointer;
+}
+.polaroid-header {
+    margin-bottom: 15px;
+}
+.polaroid-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.polaroid-photo-area {
+    border: none !important; 
+    min-height: 250px;
+    height: auto; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    cursor: pointer;
+    position: relative;
+}
+.polaroid-photo-area img {
+    border: 2px dashed #888888 !important;
+    border-radius: 15px !important;
+    max-width: 100%;
+    max-height: 350px; /* Защита: чтобы сильно вертикальные фото не вытесняли кнопку сохранения за экран */
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain; /* Отображает фото целиком без обрезки */
+    box-sizing: border-box;
+}
+
+/* --- ТЕКСТ, ПОЛЯ И КНОПКИ --- */
+/* Стандартный шрифт для всех текстовых полей, кнопок и плейсхолдеров */
+.handwritten-text,
+.polaroid-footer input,
+.polaroid-footer textarea,
+.btn-save-polaroid,
+.polaroid-placeholder p {
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    font-style: normal !important;
+    font-weight: 400 !important;
+}
+/* Жирный шрифт исключительно для полей ввода даты */
+.handwritten-date {
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+}
+/* Оформление области загрузки фото */
+.polaroid-placeholder {
+    border: 2px dashed #888888 !important;
+    border-radius: 15px !important;
+    width: 100% !important;
+    height: 250px !important;
+    /* Убран !important, чтобы скрипт мог скрыть этот блок при загрузке фото */
+    display: flex; 
+    flex-direction: column;
+    justify-content: center !important;
+    align-items: center !important;
+    box-sizing: border-box;
+}
+/* Принудительное сохранение flex-центрирования при вмешательстве JS */
+.polaroid-placeholder[style*="display: block"] {
+    display: flex !important;
+}
+/* Убираем любые фоны и рамки у всех полей ввода в форме */
+.polaroid-header input,
+.polaroid-footer input,
+.polaroid-footer textarea {
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 5px 0 !important;
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+/* Фокус на полях ввода */
+.handwritten-date:focus, 
+.handwritten-text:focus {
+    border-color: var(--accent-color) !important;
+}
+.btn-save-polaroid {
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 99%, #f6a0c5 100%) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 25px !important; 
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-transform: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 10px rgba(238, 63, 133, 0.3) !important; 
+    transition: opacity 0.2s ease, transform 0.2s ease !important;
+    width: 100% !important;
+    margin-top: 10px;
+}
+.btn-save-polaroid:hover {
+    opacity: 0.9 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* --- ТЕКСТ ВО ВСЕХ ФОРМАХ --- */
+/* 1. Поля даты */
+.handwritten-date,
+#postDate {
+    font-size: 18px !important;  
+    font-weight: 600 !important; 
+    color: var(--text-color) !important;
+}
+
+/* 2. Поля заголовков (однострочные текстовые поля) */
+.polaroid-footer input[type="text"],
+.polaroid-header input[type="text"],
+#postTitle {
+    font-size: 20px !important;  
+    font-weight: 700 !important; 
+    color: var(--text-color) !important;
+}
+
+/* 3. Поля основного текста (многострочные) */
+.handwritten-text,
+.polaroid-footer textarea,
+#postText {
+    font-size: 18px !important;  
+    font-weight: 600 !important; 
+    color: var(--text-color) !important;
+    min-height: 80px;
+    resize: none; 
+}
+
+
+
+/* ПОСТЫ БЕЗ ФОТО */
+.polaroid.no-image-card,
+.post-card.no-image-card {
+    background: linear-gradient(135deg, #f55ebe 0%, #ffabe5 100%) !important;
+    border: none !important; /* Убирает стандартную белую рамку, если она задана границами */
+}
+.polaroid.no-image-card img,
+.post-card.no-image-card img {
+    display: none !important; 
+}
+/* Скрытие пустой зоны (плейсхолдера), если она генерируется внутри карточки */
+.polaroid.no-image-card .polaroid-placeholder {
+    display: none !important;
+}
+.post-card-overlay {
+    background: transparent !important;
+}

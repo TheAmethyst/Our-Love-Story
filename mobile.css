@@ -1,0 +1,1057 @@
+/* ===== БАЗОВАЯ СТРУКТУРА (Восстановление) ===== */
+
+/* Фиксация фона */
+#bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+/* Скрытие модальных окон по умолчанию */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Скрытие панели кнопок по умолчанию (управляется через JS) */
+.admin-controls {
+    display: none;
+}
+
+/* Базовая структура карточек (которая осталась в desktop.css) */
+.post-card {
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.card-main-row {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.post-media {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.post-media img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+
+
+
+/* ===== 1. НАВИГАЦИЯ (BOTTOM TAB BAR) ===== */
+header {
+    position: fixed;
+    top: auto !important;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background: #ffffff !important; /* Белый фон тапбара */
+    border-top: 1px solid #eeeeee; /* Светлая разделительная полоса */
+    z-index: 9999 !important; /* Усиленный приоритет для постоянной видимости */
+    display: flex !important; /* Гарантия отображения во всех разделах */
+    padding: 0 !important;
+    padding-bottom: env(safe-area-inset-bottom) !important; 
+    pointer-events: all;
+}
+
+header nav {
+    margin: 0 !important;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-right: 60px !important; /* Отступ слева для размещения аватарки */
+    box-sizing: border-box;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: #b0b0b0 !important; /* Светло-серый цвет для неактивных иконок */
+    font-size: 10px !important; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px; 
+    flex: 1;
+    height: 100%;
+    padding: 0;
+    cursor: pointer;
+    text-shadow: none !important; 
+}
+
+.nav-btn .material-icons {
+    font-size: 34px !important; 
+    transition: all 0.3s ease;
+    background: none !important; /* Удаление старого градиента */
+    -webkit-text-fill-color: currentcolor !important; /* Сброс заливки текста */
+    color: inherit !important;
+}
+
+/* Скрываем текстовые подписи в мобильной версии */
+.nav-btn .tab-label {
+    display: none !important;
+}
+
+.nav-btn:active, 
+.nav-btn.active {
+    color: #333333 !important; /* Темно-серый цвет для нажатой/активной иконки */
+}
+
+.nav-btn.active .material-icons {
+    transform: scale(1.1); 
+}
+
+
+
+
+/* ===== МЕНЮ ПРОФИЛЯ (АВАТАР В ТАПБАРЕ) ===== */
+.profile-menu-container {
+    position: fixed !important;
+    top: auto !important;
+    /* Выравнивание по вертикальному центру тапбара (70px) */
+    bottom: calc(15px + env(safe-area-inset-bottom)) !important; 
+    right: 15px !important; /* Фиксация в левом нижнем углу */
+    left: auto !important;
+    z-index: 10000 !important; /* Поверх навигационной панели */
+}
+
+.avatar-btn {
+    width: 40px !important;
+    height: 40px !important;
+    border: 2px solid #eeeeee !important; /* Рамка для отделения от белого фона */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Инверсия выпадающего меню (открытие вверх) */
+.dropdown-menu {
+    top: auto !important;
+    bottom: 55px !important; /* Меню раскрывается над аватаркой */
+    left: 0 !important;
+    right: auto !important;
+    transform-origin: bottom left;
+    box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+}
+
+
+
+
+
+/* ===== 2. КОНТЕНТНАЯ ОБЛАСТЬ ===== */
+body {
+    padding-bottom: 80px; /* Отступ для Tab Bar */
+    overflow-x: hidden;
+    overscroll-behavior-y: none; /* Отключает эффект натяжения при скролле сверху/снизу */
+    touch-action: pan-y; /* Разрешает только вертикальный скролл ленты, блокируя системные жесты масштабирования */
+    width: 100vw;
+}
+
+#content {
+    padding: 20px 15px 100px 15px;
+    gap: 20px;
+}
+
+
+
+
+
+/* ===== 3. КНОПКИ УПРАВЛЕНИЯ (ГЛАВНАЯ СТРАНИЦА) ===== */
+.admin-controls {
+    position: fixed;
+    top: 50%; /* Ровно посередине экрана по вертикали */
+    left: 0;   /* Прижаты к левому краю */
+    transform: translateY(-50%); /* Выравнивание по центру относительно собственной высоты */
+    width: 66.66%; /* Занимают ровно две трети ширины экрана */
+    padding-left: 15px; /* Небольшой эстетический отступ, чтобы кнопки не упирались в край стекла телефона */
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 15px; /* Отступы между кнопками в колонке */
+    z-index: 2000;
+    margin-top: 100px !important;
+}
+
+/* Общие структурные стили для мобильных кнопок добавления */
+.main-add-btn, #addGalleryBtn {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin: 0 !important;
+    width: 100% !important; /* Растягиваются на всю ширину родительского контейнера (то есть на 2/3 экрана) */
+    box-sizing: border-box;
+    padding: 14px 20px;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+/* 1. Кнопка "Add Memory" (Бирюзово-серая) */
+#addMemoryBtn {
+    background: linear-gradient(135deg, #f54971 0%, #f760a6 50%, #ff73b9 100%);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 2. Кнопка "Add Event" (ПРОЗРАЧНАЯ С БЕЛОЙ ОБВОДКОЙ) */
+#addTimelineBtn {
+    background: transparent !important;
+    color: white !important;
+    border: 2px solid #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 3. Кнопка "Add Photo" (Черная полупрозрачная) */
+#addGalleryBtn {
+    background: rgba(0, 0, 0, 0.6) !important;
+    border: 2px solid #ffffff !important;
+    color: #ffffff !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ЭФФЕКТЫ ПРИ НАЖАТИИ И НАВЕДЕНИИ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ */
+#addMemoryBtn:hover, #addTimelineBtn:hover, #addGalleryBtn:hover,
+#addMemoryBtn:active, #addTimelineBtn:active, #addGalleryBtn:active {
+    transform: translateY(-3px) scale(1.02); /* Легкий подъем при тапе */
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Специфический эффект для прозрачной кнопки при нажатии */
+#addTimelineBtn:hover, #addTimelineBtn:active {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+
+
+
+
+/* ===== 4. МОДАЛЬНЫЕ ОКНА (BOTTOM SHEET) ===== */
+
+/* 1. Каркас модального окна (привязка к низу экрана) */
+.modal {
+    align-items: flex-end !important; /* Прижимает форму к нижнему краю */
+    padding: 0 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* 2. Сама форма (выезжающая панель) */
+.polaroid-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 25px 25px 0 0 !important; /* Скругление только верхних углов */
+    background: #ffffff !important; /* Единый чистый фон для всех форм */
+    padding: 25px 20px 40px 20px !important; /* Увеличенный нижний отступ для удобства */
+    box-sizing: border-box !important;
+    border: none !important;
+    max-height: 85vh !important; /* Защита от перекрытия всего экрана */
+    overflow-y: auto !important;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.2) !important;
+    animation: slideUp 0.3s ease-out;
+}
+
+/* Анимация выезда снизу */
+@keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+}
+
+/* 3. Крестик закрытия (перенос внутрь формы) */
+.close-outside {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: #f0f0f0 !important; /* Заметная круглая кнопка */
+    color: #888888 !important;
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 24px !important;
+    border-radius: 50% !important;
+    line-height: 1 !important;
+    padding-bottom: 2px !important;
+    z-index: 100 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+/* 4. Зона загрузки фотографии */
+.polaroid-photo-area {
+    background: #f9f9f9 !important;
+    border: 2px dashed #cccccc !important;
+    border-radius: 15px !important;
+    max-height: 30vh !important; /* Ограничение высоты, чтобы клавиатура не перекрывала кнопку */
+    margin-bottom: 20px !important;
+    width: 100% !important;
+}
+
+.polaroid-photo-area img {
+    border-radius: 12px !important;
+    max-height: 30vh !important;
+    object-fit: contain !important;
+    border: none !important;
+}
+    
+.polaroid-placeholder {
+    color: #999999 !important;
+}
+
+/* 5. Поля ввода (оптимизация под пальцы и защиту от автозума iOS) */
+.handwritten-text, 
+#timelineTitle, 
+#timelineDesc,
+.polaroid-header input,
+.polaroid-footer input,
+.polaroid-footer textarea {
+    background: #f5f5f5 !important; /* Светло-серый фон для четких границ */
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 14px 15px !important;
+    font-size: 16px !important; /* Строго 16px: предотвращает принудительное приближение экрана на iPhone при клике */
+    font-weight: 500 !important;
+    color: #000000 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-bottom: 12px !important;
+    text-align: left !important;
+}
+
+/* Специфичная настройка многострочного поля */
+.polaroid-footer textarea {
+    min-height: 100px !important;
+    resize: none !important;
+}
+
+/* 6. Кнопка сохранения (широкая, в самом низу) */
+.btn-save-polaroid {
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 99%, #f6a0c5 100%) !important;
+    color: #ffffff !important;
+    border-radius: 25px !important;
+    padding: 16px !important; /* Увеличенная высота для удобного тапа */
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    border: none !important;
+    margin-top: 10px !important;
+    box-shadow: 0 4px 15px rgba(238, 63, 133, 0.3) !important;
+    letter-spacing: 0.5px !important;
+}
+
+/* 7. Заголовки (в формах авторизации и аккаунта) */
+.polaroid-footer h3 {
+    color: #000000 !important;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    margin-bottom: 20px !important;
+}
+/* ===== ИСПРАВЛЕНИЯ ФОРМ ДОБАВЛЕНИЯ (BOTTOM SHEET) ===== */
+
+/* 1. Вывод формы поверх тапбара (исправление обрезанного низа) */
+.modal {
+    z-index: 10005 !important; /* Устанавливаем слой выше, чем у тапбара (9999) */
+}
+
+/* 2. Удаление двойной пунктирной рамки */
+.polaroid-placeholder {
+    border: none !important; /* Отключаем внутреннюю рамку плейсхолдера */
+}
+.polaroid-photo-area img {
+    border: none !important; /* Отключаем десктопную рамку у загруженного фото */
+}
+
+/* 3. Полностью невидимые поля ввода (видны только подсказки) */
+.handwritten-text, 
+#timelineTitle, 
+#timelineDesc,
+.polaroid-header input,
+.polaroid-footer input,
+.polaroid-footer textarea {
+    background: transparent !important; /* Убираем серый фон */
+    border: none !important;            /* Убираем любые рамки */
+    border-radius: 0 !important;        /* Убираем скругления */
+    padding: 10px 0 !important;         /* Убираем боковые отступы для выравнивания с текстом */
+    box-shadow: none !important;
+}
+
+/* Легкое пунктирное подчеркивание появляется ТОЛЬКО когда вы нажимаете на поле, чтобы писать текст */
+.handwritten-text:focus, 
+#timelineTitle:focus, 
+#timelineDesc:focus,
+.polaroid-header input:focus,
+.polaroid-footer input:focus,
+.polaroid-footer textarea:focus {
+    border-bottom: 1px dashed #dddddd !important;
+    background: transparent !important;
+}
+
+
+
+
+/* ===== 5. ЛЕНТА ПОСТОВ (СВАЙП-КАРУСЕЛЬ) ===== */
+
+/* 1. Скрываем десктопные стрелки перелистывания */
+.carousel-arrow {
+    display: none !important;
+}
+
+/* 2. Растягиваем обертку на всю ширину экрана */
+.carousel-wrapper {
+    margin: 10vh 0 0 0 !important;
+    padding: 0 !important;
+    width: 100vw !important;
+    margin-left: -15px !important; /* Компенсируем базовый отступ контейнера */
+}
+
+/* 3. Настройки горизонтального скролл-трека */
+.posts-track {
+    display: flex !important;
+    padding: 10px 20px 30px 20px !important; 
+    gap: 15px !important; /* Расстояние между карточками */
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important; /* Плавная прокрутка на iOS */
+    scroll-snap-type: x mandatory !important; /* Магнитная привязка к карточкам */
+    scrollbar-width: none !important; /* Скрытие ползунка Firefox */
+    -webkit-mask-image: none !important; /* Отключение десктопного затухания краев */
+    mask-image: none !important;
+}
+
+/* Скрытие ползунка Chrome/Safari/iOS */
+.posts-track::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 4. Формат мобильной карточки поста */
+.post-card {
+    flex: 0 0 82vw !important; /* Карточка занимает 82% экрана, чтобы край следующей был виден */
+    height: 55vh !important; /* Адаптивная высота под экран телефона */
+    max-height: 480px !important;
+    min-height: 380px !important;
+    margin-bottom: 0 !important; /* Сброс вертикальных отступов */
+    scroll-snap-align: center !important; /* Остановка ровно по центру при свайпе */
+    border-radius: 15px !important;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15) !important;
+    position: relative !important;
+}
+
+/* Изображение внутри поста (адаптация под новую высоту) */
+.post-card img {
+    border-radius: 15px !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+/* 5. Кнопка "Удалить" внутри поста (если включен режим владельца) */
+.post-card .delete-btn-simple {
+    position: absolute !important;
+    bottom: 12px !important;
+    right: 15px !important;
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    z-index: 10 !important;
+    padding: 5px !important;
+    font-size: 14px !important;
+}
+
+/* 6. Оверлей с текстом поверх картинки */
+.post-card-overlay {
+    position: absolute ;
+    top: 0;
+    left: 0 ;
+    width: 100% ;
+    padding: 20px ;
+    color: #ffffff ;
+    box-sizing: border-box ;
+    border-radius: 15px 15px 0 0 ; /* Повторяет скругление карточки */
+    pointer-events: none; /* Текст не блокирует клик по карточке */
+}
+
+/* 7. Восстановление стилей текста */
+.post-card-title {
+    font-size: 25px ;    
+    font-weight: 800 ;   
+    margin-bottom: 10px ; 
+    line-height: 1.2 ;
+    color: #ffffff ;
+    display: block ;
+}
+
+.post-card-date {
+    font-size: 16px ;    
+    font-weight: 700 ;   
+    color: var(--bg-color) ;    
+    margin-bottom: 15px ;
+    display: block ;
+}
+
+.post-card-intro {
+    font-size: 16px ;    
+    font-weight: 600 ;   
+    line-height: 1.4 ;              
+    color: #ffffff ;
+    display: block ;
+    
+    /* Обрезка слишком длинного текста для мобильных (по желанию) */
+    display: -webkit-box ;
+    -webkit-box-orient: vertical ;
+    overflow: hidden;
+}
+
+/* ===== ПОЛНОЭКРАННЫЙ ПОСТ (ИСПРАВЛЕНИЕ ДЛЯ МОБИЛЬНЫХ) ===== */
+
+/* 1. ЖЕСТКИЙ КАРКАС: Единый белый фон для ВСЕХ типов постов (Исправляет баги 1 и 2) */
+#fullPostBody, 
+#fullPostBody.no-image-layout,
+#fullPostBody.horizontal-layout,
+#fullPostBody:not(.horizontal-layout) {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #ffffff !important; /* Принудительная белая подложка для всего окна */
+    width: 90vw !important;
+    max-width: 90vw !important;
+    height: auto !important;
+    max-height: 85vh !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* 2. ФОТОГРАФИЯ (Исправляет баг 3: ограничение высоты вертикальных фото) */
+#fullPostBody .full-post-image-container {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-height: 40vh !important; /* Фото не может занимать больше 40% высоты экрана */
+    padding: 15px 15px 0 15px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+#fullPostBody img {
+    max-width: 100% !important;
+    max-height: 40vh !important; /* Строгое ограничение высоты самой картинки */
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important; /* Фото помещается целиком без искажений */
+    border-radius: 10px !important;
+    border: 2px solid #eeeeee !important; /* Тонкая серая рамка вместо толстой белой */
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
+
+/* 3. ТЕКСТОВАЯ ЗОНА (Занимает оставшееся пространство на белом фоне) */
+#fullPostBody .full-post-text-container {
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    padding: 15px 20px 20px 20px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important; 
+}
+
+/* Зона прокрутки внутри текстового блока */
+.full-post-scroll-area {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+    padding-bottom: 40px !important; /* Буферное пространство под кнопку удаления */
+}
+
+/* 4. ВОССТАНОВЛЕНИЕ СТИЛЯ ТЕКСТА (Исправляет баг 4) */
+#fullPostTitle {
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+    color: #000000 !important; /* Жестко заданный черный цвет заголовка */
+    margin-bottom: 8px !important;
+    line-height: 1.2 !important;
+}
+
+#fullPostDate {
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    color: #888888 !important; /* Серый цвет для визуального отделения даты */
+    margin-bottom: 12px !important;
+}
+
+#fullPostText {
+    font-family: 'Segoe UI', Roboto, sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 500 !important;
+    color: #333333 !important; /* Темно-серый текст для комфортного чтения */
+    line-height: 1.5 !important;
+    white-space: pre-wrap !important;
+}
+
+/* 5. КНОПКА УДАЛЕНИЯ */
+#fullPostBody .full-post-delete-btn {
+    opacity: 1 !important;
+    position: absolute !important;
+    bottom: 10px !important;
+    right: 15px !important;
+    background: transparent !important;
+    color: #ff4b5c !important; /* Акцентный цвет для кнопки удаления */
+    border: none !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    padding: 8px 12px !important;
+    z-index: 100 !important;
+    text-transform: lowercase !important;
+}
+
+/* ===== ИСПРАВЛЕНИЯ ПОЛНОЭКРАННОГО ПОСТА ===== */
+
+/* 1. Центрирование окна поста по вертикали */
+#fullPostModal {
+    align-items: center !important; /* Отменяет привязку к верхнему краю (flex-start) */
+    padding-top: 0 !important;      /* Убирает базовый отступ в 8vh */
+    padding-bottom: 80px !important; /* Компенсирует высоту нижнего тапбара для идеального центра */
+}
+
+/* 2. Привязка фотографии к левому краю */
+#fullPostBody .full-post-image-container {
+    justify-content: flex-start !important; /* Отменяет центрирование (center) */
+    width: 100% !important;
+}
+
+#fullPostBody img {
+    width: auto !important; /* Сброс жесткой ширины, чтобы фото не центрировалось внутри своего блока */
+    margin: 0 !important;   /* Убирает автоматические отступы (margin: 0 auto) */
+    max-width: 100% !important;
+}
+
+/* Отключение крестика закрытия поста */
+#fullPostModal .close-outside {
+    display: none !important;
+}
+
+/* Настройка скрытия кнопки удаления */
+#fullPostBody .full-post-delete-btn {
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+}
+
+/* Класс, который будет добавляться через JS при зажатии экрана */
+#fullPostBody .full-post-delete-btn.show-action {
+    display: block !important;
+    opacity: 1 !important;
+    animation: popUp 0.2s ease-out;
+}
+
+@keyframes popUp {
+    0% { transform: scale(0.9); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+
+
+
+/* ===== 6. ПАНЕЛЬ ГОДОВ (ВТОРОЙ ТАББАР) ===== */
+#yearsPanel {
+    position: fixed;
+    bottom: calc(70px + env(safe-area-inset-bottom)); 
+    left: 0;
+    width: 100%;
+    height: 45px; /* Фиксируем общую высоту панели */
+    background: linear-gradient(to right, var(--year-bg-start) 100%, transparent 100%) !important;
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    padding: 0 !important; /* Убираем отступы контейнера, чтобы выделение касалось краев */
+    box-sizing: border-box;
+    white-space: nowrap;
+    z-index: 9998;
+    -webkit-overflow-scrolling: touch;
+}
+
+#yearsPanel h3 {
+    display: none;
+}
+
+/* Стили годов */
+.year-link {
+    display: inline-flex; /* Используем flex для центрирования текста по вертикали */
+    align-items: center;
+    height: 100%; /* Растягиваем на всю высоту тапбара */
+    margin: 0 !important; /* Убираем пустые разрывы между блоками */
+    padding: 0 20px !important; /* Создаем зону выделения (текст + пространство по бокам) */
+    font-size: 1.1rem;
+    font-weight: 700 !important;
+    color: #ffffff !important;
+    border-radius: 0 !important; /* Убираем скругления, делаем строгий прямоугольник */
+    background: transparent;
+    transition: background 0.3s ease;
+    cursor: pointer;
+}
+
+/* Выделение активного года */
+.year-link.active {
+    background: linear-gradient(135deg, rgb(229, 1, 142) 0%, #ff5baa 100%) !important;
+}
+
+
+
+
+
+/* ===== ГАЛЕРЕЯ (МОБИЛЬНЫЕ ПОЛАРОИДЫ) ===== */
+
+/* Сетка галереи: 3 колонки */
+.gallery-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 10px !important;
+    box-sizing: border-box !important;
+    margin: 10px auto 50px auto !important; 
+}
+
+/* Рамка полароида в сетке */
+.gallery-item {
+    position: relative !important;
+    background: #ffffff !important;
+    /* Уменьшенные отступы для 3-колоночной сетки на малых экранах */
+    padding: 5px 5px 20px 5px !important; 
+    box-sizing: border-box !important;
+    border-radius: 2px !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
+    margin: 0 !important;
+    overflow: hidden !important; 
+}
+
+.gallery-item img {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    object-fit: cover !important;
+    display: block !important;
+    border-radius: 1px !important;
+    height: auto !important; 
+}
+
+/* Отмена десктопного hover */
+.gallery-item:hover {
+    transform: none !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* ===== ПОЛНОЭКРАННАЯ ГАЛЕРЕЯ ===== */
+.full-image-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0,0,0,0.95) !important;
+    z-index: 10000 !important;
+    display: none; 
+    justify-content: center;
+    align-items: center;
+}
+
+/* Полноэкранный полароид */
+.fullscreen-polaroid-wrapper {
+    position: relative !important;
+    background: #ffffff !important;
+    padding: 12px 12px 60px 12px !important; 
+    border-radius: 6px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: 90vw !important;
+    max-height: 85vh !important;
+    box-sizing: border-box !important;
+}
+
+.fullscreen-polaroid-wrapper img {
+    max-width: 100% !important;
+    max-height: calc(85vh - 72px) !important; /* 85vh минус верхний и нижний padding (12+60) */
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Кнопка удаления (скрыта до зажатия) */
+.fullscreen-polaroid-wrapper .fullscreen-delete-btn {
+    position: absolute !important;
+    bottom: 15px !important;
+    right: 15px !important;
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: none !important;
+    color: #000000 !important; 
+    font-weight: 400 !important;
+    font-size: 10px !important;
+    padding: 8px 12px !important;
+    border-radius: 6px !important;
+    z-index: 10001 !important;
+    
+    /* Скрытие */
+    display: none !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.fullscreen-polaroid-wrapper .fullscreen-delete-btn.show-action {
+    display: block !important;
+    opacity: 1 !important;
+    animation: popUp 0.2s ease-out;
+}
+
+
+
+
+
+/* ===== ТАЙМЛАЙН (МОБИЛЬНАЯ ГОРИЗОНТАЛЬНАЯ ЛЕНТА) ===== */
+
+/* 1. Скрытие стрелок перелистывания (используем свайп) */
+.timeline-arrow {
+    display: none !important;
+}
+
+/* 2. Контейнер таймлайна (горизонтальный свайп) */
+.timeline-wrapper {
+    position: relative !important;
+    width: 100vw !important;
+    height: 65vh !important;
+    margin: 5vh 0 0 -15px !important; /* Компенсация базовых отступов экрана */
+    display: flex !important;
+    align-items: center !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important; /* Плавный скролл на iOS */
+    scrollbar-width: none !important;
+    padding: 0 20px !important; /* Отступы по краям ленты */
+}
+
+.timeline-wrapper::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 3. Центральная нить таймлайна */
+.timeline-wrapper::before {
+    display: none !important; /* Отключаем глобальную статичную нить */
+}
+
+.timeline-event::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: -1px !important;
+    width: calc(100% + 2px) !important;
+    height: 6px !important; /* Нить тоньше, чем на ПК */
+    background: rgba(255, 255, 255, 0.9) !important;
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.6)) !important;
+    transform: translateY(-50%) !important;
+    z-index: 1 !important;
+}
+
+/* Плавное затухание нити по краям */
+.timeline-event:first-child::before { background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 100%) !important; }
+.timeline-event:last-child::before { background: linear-gradient(to right, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 100%) !important; }
+.timeline-event:first-child:last-child::before { background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0) 100%) !important; }
+
+/* 4. Контейнер одного события */
+.timeline-event {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 200px !important; /* Более компактные блоки для мобильных (на ПК 320px) */
+    min-width: 200px !important;
+    height: 100% !important;
+    justify-content: center !important;
+    align-items: center !important;
+    position: relative !important;
+    z-index: 2 !important;
+    margin: 0 !important;
+}
+
+/* 5. Узел события (Центр) */
+.timeline-node {
+    position: relative !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 10 !important;
+}
+
+/* 6. Фотография в круге */
+.timeline-avatar {
+    width: 140px !important;
+    height: 140px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+    background: #111111 !important;
+    position: relative !important;
+    z-index: 5 !important;
+    margin: 0 !important;
+}
+
+/* 7. Градиентное сердечко (если нет фото) */
+.timeline-avatar.empty-avatar {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+.timeline-avatar.empty-avatar svg {
+    width: 160px !important;
+    height: 160px !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* 8. Дата поверх фото (Постоянная видимость на смартфонах) */
+.timeline-date-overlay {
+    position: absolute !important;
+    width: 140px !important;
+    height: 140px !important;
+    background: rgba(0, 0, 0, 0.45) !important; /* Легкое затемнение для читаемости */
+    color: #ffffff !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    z-index: 15 !important;
+    pointer-events: none !important;
+    opacity: 1 !important; /* Отмена десктопного прозрачного состояния */
+}
+
+/* Убираем черный фон с даты, если фото нет (под датой сердечко) */
+.timeline-avatar.empty-avatar + .timeline-date-overlay {
+    background: transparent !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8) !important; /* Добавляем тень для читаемости */
+}
+
+/* 9. Заголовок события */
+.timeline-title-badge {
+    margin-top: -15px !important; /* Нахлест на фото снизу */
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 50%, #f6a0c5 100%) !important;
+    color: #ffffff !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    max-width: 180px !important;
+    min-width: 120px !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    z-index: 20 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+    text-align: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important; /* Обрезка длинного текста троеточием */
+}
+
+/* 10. Кнопка удаления */
+.timeline-delete-btn {
+    position: absolute !important;
+    top: -15px !important;
+    right: -10px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 5px 10px !important;
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    z-index: 30 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4) !important;
+    transition: opacity 0.2s ease, visibility 0.2s !important;
+}
+
+/* Кнопка удаления появляется при обычном клике/тапе на событие (логика show-delete вшита в timeline.js) */
+.timeline-event.show-delete .timeline-delete-btn {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* ===== ИСПРАВЛЕНИЯ ТАЙМЛАЙНА (АДАПТАЦИЯ ТАПОВ И ТАПБАРА) ===== */
+
+/* 1. Жесткая защита Тапбара на странице таймлайна */
+body[data-page="timeline"] {
+    overflow-y: auto !important; /* Отменяет десктопную блокировку скролла, из-за которой пропадал тапбар */
+}
+
+body[data-page="timeline"] header {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* 2. Скрытие дат по умолчанию */
+.timeline-date-overlay {
+    opacity: 0 !important; 
+    transition: opacity 0.3s ease !important;
+}
+
+/* 3. Появление даты только при тапе (когда JS добавляет класс show-date) */
+.timeline-event.show-date .timeline-date-overlay {
+    opacity: 1 !important;
+}
+/* ===== УДАЛЕНИЕ ВЕРТИКАЛЬНОГО ПОЛЗУНКА В ТАЙМЛАЙНЕ ===== */
+
+/* 1. Скрытие самого ползунка (для всех мобильных браузеров) */
+body[data-page="timeline"]::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+body[data-page="timeline"] {
+    scrollbar-width: none !important; /* Для Firefox */
+    -ms-overflow-style: none !important;
+}
+
+/* 2. Блокировка вертикального дергания экрана */
+.timeline-wrapper {
+    touch-action: pan-x !important; /* Жестко разрешает браузеру реагировать только на свайп влево-вправо */
+}

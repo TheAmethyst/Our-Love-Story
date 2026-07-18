@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Story</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" media="screen and (min-width: 769px)" href="desktop.css">
+    <link rel="stylesheet" media="screen and (max-width: 768px)" href="mobile.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="profile-menu-container">
+        <button class="avatar-btn" onclick="toggleProfileMenu()">
+            <span class="material-icons" id="avatarIcon">person</span>
+            <img id="avatarImage" src="" style="display: none;">
+        </button>
+        <div class="dropdown-menu" id="profileDropdown">
+            <button class="dropdown-item" id="menuAuthBtn" onclick="handleAuthAction()">Войти</button>
+            <div id="adminMenuSection">
+                <button class="dropdown-item" onclick="openAccountSettings()">Аккаунт</button>
+            </div>
+        </div>
+    </div>
+    <div class="top-fade-overlay"></div>
+    <img id="bg" src="img/main.jpg">
+
+    <header>
+        <nav>
+            <button class="nav-btn" onclick="openPage('home')">
+                <span class="material-icons">home</span>
+                <span class="tab-label">Home</span>
+            </button>
+            <button class="nav-btn" onclick="openPage('history')">
+                <span class="material-icons">book</span>
+                <span class="tab-label">Notes</span>
+            </button>
+            <button class="nav-btn" onclick="openPage('gallery')">
+                <span class="material-icons">image</span>
+                <span class="tab-label">Gallery</span>
+            </button>
+            <button class="nav-btn" onclick="openPage('timeline')">
+                <span class="material-icons">schedule</span>
+                <span class="tab-label">Timeline</span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="admin-controls" id="mainControls">
+        <button id="addMemoryBtn" class="main-add-btn" onclick="openModal('history')">
+            Add new memory
+        </button>
+
+        <button id="addGalleryBtn" class="main-add-btn gallery-style-btn" onclick="openGalleryModal()">
+            Add photo
+        </button>
+
+        <button id="addTimelineBtn" class="main-add-btn" onclick="openTimelineModal()">
+            Add event
+        </button>
+
+    </div>
+
+    <div id="content"></div>
+
+    <div id="yearsPanel" class="years-menu" style="display: none;"></div>
+
+    <div class="carousel-wrapper" id="carouselWrapper" style="display: none;">
+        <button class="carousel-arrow left-arrow" onclick="scrollPosts(-1)">&#10094;</button>
+        <div id="postsContainer" class="posts-track">
+            </div>
+        <button class="carousel-arrow right-arrow" onclick="scrollPosts(1)">&#10095;</button>
+    </div>
+
+    <div id="postModal" class="modal">
+        <div class="polaroid-frame">
+            <button class="close-outside" onclick="closeModal()">&times;</button>
+            <div class="polaroid-header">
+                <input type="text" id="postDate" class="handwritten-date" placeholder="Дата" onfocus="(this.type='date')" onblur="(this.type=this.value?'date':'text')">
+            </div>
+            <div class="polaroid-photo-area" onclick="document.getElementById('postImage').click()">
+                <input type="file" id="postImage" accept="image/*" style="display:none" onchange="previewImage(this)">
+                <div id="uploadPlaceholder" class="polaroid-placeholder">
+                    <span class="plus-icon">+</span>
+                    <p>Добавить фото</p>
+                </div>
+                <img id="imagePreview" src="" style="display:none;">
+            </div>
+            <div class="polaroid-footer">
+                <input type="text" id="postTitle" placeholder="Заголовок" class="handwritten-text" style="min-height: auto; font-weight: bold; border-bottom: 1px dashed #ccc; margin-bottom: 5px;">
+                <textarea id="postText" placeholder="Напишите что-нибудь..." class="handwritten-text"></textarea>
+                <button class="btn-save-polaroid" id="saveBtn" onclick="addPost()">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="galleryForm" class="modal">
+        <div class="polaroid-frame">
+            <button class="close-outside" onclick="closeGalleryForm()">&times;</button>
+            <div class="polaroid-photo-area" onclick="document.getElementById('galleryImageFile').click()">
+                <input type="file" id="galleryImageFile" accept="image/*" style="display:none" onchange="previewGalleryImage(this)" multiple>
+                <div id="galleryUploadPlaceholder" class="polaroid-placeholder">
+                    <span class="plus-icon">+</span>
+                    <p>Добавить фото</p>
+                </div>
+                <img id="galleryImagePreview" src="" style="display:none;">
+            </div>
+            <div class="polaroid-footer">
+                <button class="btn-save-polaroid" id="saveGalleryBtn" onclick="addGalleryPhoto()">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="timelineModal" class="modal">
+        <div class="polaroid-frame">
+            <button class="close-outside" onclick="closeTimelineModal()">&times;</button>
+            
+            <div class="polaroid-header">
+                <input type="text" id="timelineDate" class="handwritten-date" placeholder="Дата" onfocus="(this.type='date')" onblur="(this.type=this.value?'date':'text')">
+            </div>
+
+            <div class="polaroid-photo-area" onclick="document.getElementById('timelineFile').click()">
+                <input type="file" id="timelineFile" accept="image/*" style="display:none" onchange="previewTimelineImg(this)">
+                <div id="timelinePreviewPlaceholder" class="polaroid-placeholder">
+                    <span class="plus-icon">+</span>
+                    <p>Добавить фото</p>
+                </div>
+                <img id="timelineImgPreview" src="" style="display:none; width:100%; height:100%; object-fit:cover;">
+            </div>
+
+            <div class="polaroid-footer">
+                <input type="text" id="timelineTitle" placeholder="Заголовок" class="handwritten-text" style="min-height: auto; font-weight: bold; border-bottom: 1px dashed #ccc; margin-bottom: 5px;">
+                <button class="btn-save-polaroid" id="saveTimelineBtn" onclick="saveTimelineEvent()">Опубликовать</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/browser-image-compression/2.0.2/browser-image-compression.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+    <script src="posts.js"></script>    <script src="gallery.js"></script>  <script src="timeline.js"></script> <script src="app.js"></script>
+    <div id="loginModal" class="modal">
+        <div class="polaroid-frame" style="background: #000; border: 1px solid #fff;">
+            <button class="close-outside" onclick="document.getElementById('loginModal').style.display='none'">&times;</button>
+            <div class="polaroid-footer" style="padding: 20px;">
+                <h3 style="text-align: center; margin-top: 0; color: #fff;">Вход для владельца</h3>
+                <input type="email" id="loginEmail" placeholder="Email" class="handwritten-text" style="background: #fff !important; margin-bottom: 10px; border-radius: 4px;">
+                <input type="password" id="loginPassword" placeholder="Пароль" class="handwritten-text" style="background: #fff !important; margin-bottom: 20px; border-radius: 4px;">
+                <button class="btn-save-polaroid" onclick="loginUser()" style="color: #00ced1; border: 1px solid #00ced1; width: 100%; text-align: center;">ВОЙТИ</button>
+            </div>
+        </div>
+    </div>
+    <div id="accountModal" class="modal">
+        <div class="polaroid-frame" style="background: #1a1a1a; border: 1px solid #333;">
+            <button class="close-outside" onclick="document.getElementById('accountModal').style.display='none'">&times;</button>
+            <div class="polaroid-footer" style="padding: 20px;">
+                <h3 style="text-align: center; margin-top: 0; color: #fff;">Настройки аккаунта</h3>
+                
+                <div id="avatarUploadArea" style="text-align: center; margin-bottom: 20px;" onclick="document.getElementById('avatarFileInput').click()">
+                    <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="uploadAvatar(this)">
+                    <div class="avatar-preview-circle" style="width: 80px; height: 80px; border-radius: 50%; background: #333; margin: 0 auto; display: flex; justify-content: center; align-items: center; cursor: pointer; overflow: hidden; border: 2px solid #333;">
+                        <img id="settingsAvatarPreview" src="" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                        <span class="material-icons" id="settingsAvatarIcon" style="color: #666;">camera_alt</span>
+                    </div>
+                    <p id="avatarUploadText" style="color: #888; font-size: 12px; margin-top: 8px;">Изменить аватар</p>
+                </div>
+
+                <label style="color: #ccc; font-size: 12px;">Новый Email:</label>
+                <input type="email" id="newEmail" placeholder="Оставьте пустым, если не меняете" class="handwritten-text" style="background: #fff !important; margin-bottom: 15px; border-radius: 4px;">
+                
+                <label style="color: #ccc; font-size: 12px;">Новый Пароль:</label>
+                <input type="password" id="newPassword" placeholder="Оставьте пустым, если не меняете" class="handwritten-text" style="background: #fff !important; margin-bottom: 20px; border-radius: 4px;">
+                
+                <button class="btn-save-polaroid" onclick="updateAccountData()" style="color: #00ced1; border: 1px solid #00ced1; width: 100%; text-align: center;">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+            </div>
+        </div>
+    </div>
+    <div id="themeModal" class="modal">
+        <div class="polaroid-frame" style="background: var(--menu-bg); border: 1px solid var(--accent-color);">
+            <button class="close-outside" onclick="document.getElementById('themeModal').style.display='none'">&times;</button>
+            <div class="polaroid-footer" style="padding: 20px;">
+                <h3 style="text-align: center; margin-top: 0; color: var(--text-color);">Выбор темы</h3>
+                <div class="theme-grid">
+                    <button class="theme-color-btn" style="background: #ffffff; border-color: #ccc;" onclick="applyTheme('white')" title="Светлая"></button>
+                    <button class="theme-color-btn" style="background: #000000;" onclick="applyTheme('dark')" title="Темная"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="fullPostModal" class="modal">
+        <div class="full-post-content" id="fullPostContent">
+            <button class="close-outside" onclick="document.getElementById('fullPostModal').style.display='none'">&times;</button>
+            <div class="full-post-body" id="fullPostBody">
+                </div>
+        </div>
+    </div>
+</body>
+</html>
