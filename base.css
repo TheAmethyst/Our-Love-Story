@@ -183,7 +183,7 @@ body.admin-mode #adminMenuSection {
     align-items: center;
 }
 .polaroid-frame {
-    background: var(--bg-color);
+    background: #ffffff;
     padding: 25px;
     width: 90%;
     max-width: 450px;
