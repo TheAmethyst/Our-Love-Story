@@ -16,7 +16,7 @@
 
 /* ШАПКА */
 header {
-    background: var(--header-bg) !important;
+    background: linear-gradient(135deg, #ee3f85 0%, #ef82b5 99%, #f6a0c5 100%) !important;
     position: fixed;
     top: 0;
     left: 0;
