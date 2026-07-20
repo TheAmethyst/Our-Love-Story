@@ -148,12 +148,12 @@ window.addPost = async function() {
         // 3. ЗАГРУЗКА ФОТО
         if (fileInput) {
             const compressed = await compressImage(fileInput);
-            const fileName = `${Date.now()}_${fileInput.name}`;
+            const fileExt = fileInput.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
             const { error: uploadError } = await db.storage
                 .from("post-images")
                 .upload(fileName, compressed);
             if (uploadError) throw uploadError;
-
             const { data: urlData } = await db.storage
                 .from("post-images")
                 .getPublicUrl(fileName);
