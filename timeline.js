@@ -74,17 +74,16 @@ window.fetchTimelineBatch = async function(isFirstLoad = false) {
 window.appendTimelineItems = async function(data, startIndex) {
     const list = document.getElementById("timelineList");
     if (!list) return;
-
     for (let i = 0; i < data.length; i++) {
         const event = data[i];
         const div = document.createElement("div");
         div.className = "timeline-event";
-        
         // 1. ЛОГИКА ТАПА (Короткое нажатие): Показывает дату
         div.onclick = function(e) {
             // Игнорируем клик, если он был по кнопке удаления
             if (e.target.closest('.timeline-delete-btn')) return; 
-            
+            // Защита: если клик произошел сразу после долгого зажатия, не показываем дату
+            if (div.classList.contains('show-delete')) return;
             // Скрываем даты и кнопки удаления у всех остальных событий (оставляем только одно активным)
             document.querySelectorAll('.timeline-event').forEach(el => {
                 if (el !== div) {
@@ -92,33 +91,34 @@ window.appendTimelineItems = async function(data, startIndex) {
                     el.classList.remove('show-delete');
                 }
             });
-            
             // Переключаем видимость даты для текущего события
             div.classList.toggle('show-date');
         };
-
-        // 2. ЛОГИКА ДОЛГОГО НАЖАТИЯ: Показывает кнопку удаления
+        // 2. ЛОГИКА ДОЛГОГО НАЖАТИЯ (Сенсор и Мышь): Показывает кнопку удаления
         let timelinePressTimer;
-        div.addEventListener('touchstart', function(e) {
+        const startPress = function(e) {
             if (e.target.closest('.timeline-delete-btn')) return;
-            
             timelinePressTimer = setTimeout(function() {
                 div.classList.add('show-delete');
                 div.classList.remove('show-date'); // Прячем дату, если вызвано удаление
-                
-                if (navigator.vibrate) navigator.vibrate(50); // Легкая вибрация
-            }, 600); // 600 мс удержания
-        }, { passive: true });
-
-        // Отмена таймера долгого нажатия при движении пальцем
-        const clearTimelineTimer = () => clearTimeout(timelinePressTimer);
-        div.addEventListener('touchmove', clearTimelineTimer);
-        div.addEventListener('touchend', clearTimelineTimer);
-        div.addEventListener('touchcancel', clearTimelineTimer);
-
+                if (navigator.vibrate) navigator.vibrate(50);
+            }, 600);
+        };
+        const clearPress = function() {
+            clearTimeout(timelinePressTimer);
+        };
+        // Обработчики для мобильных устройств (Сенсор)
+        div.addEventListener('touchstart', startPress, { passive: true });
+        div.addEventListener('touchmove', clearPress);
+        div.addEventListener('touchend', clearPress);
+        div.addEventListener('touchcancel', clearPress);
+        // Обработчики для тестирования на ПК (Мышь)
+        div.addEventListener('mousedown', startPress);
+        div.addEventListener('mousemove', clearPress);
+        div.addEventListener('mouseup', clearPress);
+        div.addEventListener('mouseleave', clearPress);
         const dateParts = event.event_date.split('-');
         const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
-
         let imageHTML = `
             <div class="timeline-avatar empty-avatar">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -132,11 +132,9 @@ window.appendTimelineItems = async function(data, startIndex) {
                 </svg>
             </div>
         `; 
-        
         if (event.image_url) {
             imageHTML = `<img src="${event.image_url}" class="timeline-avatar" loading="lazy">`;
         }
-
         // Вставка HTML (без старого атрибута onclick в разметке)
         div.innerHTML = `
             <div class="timeline-node">
@@ -148,7 +146,6 @@ window.appendTimelineItems = async function(data, startIndex) {
                 <span class="timeline-title-text">${event.title}</span>
             </div>
         `;
-
         list.appendChild(div);
     }
 };
