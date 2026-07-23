@@ -91,13 +91,13 @@
     color: #888888;
     font-size: 20px;
     font-weight: bold;
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     cursor: pointer;
     justify-content: center;
     align-items: center;
-    padding-bottom: 4px;
+    padding-bottom: 0px;
 }
 body.admin-mode .micro-trigger-btn { display: flex !important; }
 
