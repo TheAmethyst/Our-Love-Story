@@ -696,7 +696,7 @@ body {
     left: 0;
     width: 100%;
     height: 45px; /* Фиксируем общую высоту панели */
-    background: linear-gradient(to right, var(#f42a8f83) 100%, transparent 100%) !important;
+    background: linear-gradient(to right, #f42a8f83 100%, transparent 100%) !important;
     display: flex;
     flex-direction: row;
     overflow-x: auto;
