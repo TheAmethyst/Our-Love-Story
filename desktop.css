@@ -70,6 +70,57 @@ header nav {
 
 
 
+/* === УДАЛЕНИЕ: ТОЛЬКО ДЛЯ ПК (ВОССТАНОВЛЕНИЕ ДИЗАЙНА) === */
+/* 1. Полное отключение мобильного триггера */
+.micro-trigger-btn { display: none !important; }
+
+/* 2. Контейнеры позиционируются по старым координатам */
+.delete-action-container { position: absolute; z-index: 105; }
+.post-delete-wrapper { bottom: 20px; right: 30px; }
+.gallery-delete-wrapper { bottom: 15px; right: 15px; }
+.timeline-trigger-container { top: -25px; right: -15px; }
+
+/* 3. Восстановление оригинального дизайна кнопок ПК */
+/* Кнопки в постах и галерее (прозрачные, серый текст) */
+.post-delete-wrapper button:last-child,
+.gallery-delete-wrapper button:last-child {
+    background: transparent !important;
+    border: none !important;
+    color: #888888 !important;
+    font-size: 13px !important;
+    padding: 0 !important;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    cursor: pointer;
+}
+
+/* Кнопка в таймлайне (белая с черным текстом) */
+.timeline-trigger-container button:last-child {
+    background: #ffffff !important;
+    color: #888888 !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 5px 10px !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s;
+    cursor: pointer;
+}
+
+/* 4. Возврат логики появления при наведении (Hover) */
+#fullPostBody:hover .post-delete-wrapper button:last-child,
+.fullscreen-polaroid-wrapper:hover .gallery-delete-wrapper button:last-child {
+    opacity: 1;
+}
+.timeline-event:hover .timeline-trigger-container button:last-child {
+    opacity: 1;
+    visibility: visible;
+}
+
+
+
 /* ===== ВСЕ КНОПКИ ДОБАВЛЕНИЯ ===== */
 /* Упорядочиваем кнопки в ряд по центру */
 .admin-controls {

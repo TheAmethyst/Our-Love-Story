@@ -5,8 +5,8 @@ body {
     background: #000;
     overflow-y: auto; /* Скролл только здесь */
     min-height: 100vh;
-    background-color: var(--bg-color) !important;
-    color: var(--text-color) !important;
+    background-color: #ffffff !important;
+    color: #000000 !important;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 body::after {

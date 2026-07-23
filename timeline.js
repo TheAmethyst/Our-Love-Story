@@ -94,29 +94,6 @@ window.appendTimelineItems = async function(data, startIndex) {
             // Переключаем видимость даты для текущего события
             div.classList.toggle('show-date');
         };
-        // 2. ЛОГИКА ДОЛГОГО НАЖАТИЯ (Сенсор и Мышь): Показывает кнопку удаления
-        let timelinePressTimer;
-        const startPress = function(e) {
-            if (e.target.closest('.timeline-delete-btn')) return;
-            timelinePressTimer = setTimeout(function() {
-                div.classList.add('show-delete');
-                div.classList.remove('show-date'); // Прячем дату, если вызвано удаление
-                if (navigator.vibrate) navigator.vibrate(50);
-            }, 600);
-        };
-        const clearPress = function() {
-            clearTimeout(timelinePressTimer);
-        };
-        // Обработчики для мобильных устройств (Сенсор)
-        div.addEventListener('touchstart', startPress, { passive: true });
-        div.addEventListener('touchmove', clearPress);
-        div.addEventListener('touchend', clearPress);
-        div.addEventListener('touchcancel', clearPress);
-        // Обработчики для тестирования на ПК (Мышь)
-        div.addEventListener('mousedown', startPress);
-        div.addEventListener('mousemove', clearPress);
-        div.addEventListener('mouseup', clearPress);
-        div.addEventListener('mouseleave', clearPress);
         const dateParts = event.event_date.split('-');
         const formattedDate = `${dateParts[2]}.${dateParts[1]}.${dateParts[0]}`;
         let imageHTML = `
@@ -138,7 +115,10 @@ window.appendTimelineItems = async function(data, startIndex) {
         // Вставка HTML (без старого атрибута onclick в разметке)
         div.innerHTML = `
             <div class="timeline-node">
-                <button class="timeline-delete-btn" onclick="event.stopPropagation(); window.deleteEvent(${event.id})">удалить</button>
+                <div class="delete-action-container timeline-trigger-container">
+                    <button class="micro-trigger-btn" onclick="event.stopPropagation(); this.nextElementSibling.classList.toggle('show-action')">⋮</button>
+                    <button class="timeline-delete-btn" onclick="event.stopPropagation(); window.deleteEvent(${event.id})">удалить</button>
+                </div>
                 ${imageHTML}
                 <div class="timeline-date-overlay">${formattedDate}</div>
             </div>

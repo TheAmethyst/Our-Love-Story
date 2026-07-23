@@ -277,10 +277,13 @@ window.openFullPost = async function(postDataStr) {
         console.error("Ошибка при проверке сессии:", e);
     }
     const deleteBtnHtml = user ? `
-        <button class="full-post-delete-btn" 
-                onclick="deletePost(${post.id}, '${post.image || ''}'); document.getElementById('fullPostModal').style.display='none';">
-            удалить
-        </button>
+        <div class="delete-action-container post-delete-wrapper">
+            <button class="micro-trigger-btn" onclick="this.nextElementSibling.classList.toggle('show-action')">⋮</button>
+            <button class="full-post-delete-btn" 
+                    onclick="deletePost(${post.id}, '${post.image || ''}'); document.getElementById('fullPostModal').style.display='none';">
+                удалить
+            </button>
+        </div>
     ` : '';
     // Генерируем блок картинки только если она есть
     let imageHtml = '';
@@ -351,32 +354,3 @@ document.addEventListener('click', function(event) {
         modal.style.display = 'none';
     }
 });
-
-
-
-// ===== ЛОГИКА ДОЛГОГО НАЖАТИЯ ДЛЯ КНОПКИ УДАЛЕНИЯ =====
-const postBodyElement = document.getElementById('fullPostBody');
-let longPressTimer;
-
-if (postBodyElement) {
-    postBodyElement.addEventListener('touchstart', function(e) {
-        // Игнорируем касание, если оно произошло прямо по кнопке удаления
-        if (e.target.closest('.full-post-delete-btn')) return;
-
-        longPressTimer = setTimeout(function() {
-            const deleteBtn = document.querySelector('.full-post-delete-btn');
-            if (deleteBtn) {
-                deleteBtn.classList.add('show-action');
-                // Запуск короткой вибрации (50 мс) для тактильного отклика, если поддерживается устройством
-                if (navigator.vibrate) navigator.vibrate(50);
-            }
-        }, 600); 
-    }, { passive: true });
-
-    // Отмена таймера, если пользователь начал скроллить текст или отпустил палец
-    const clearTimer = () => clearTimeout(longPressTimer);
-    
-    postBodyElement.addEventListener('touchmove', clearTimer);
-    postBodyElement.addEventListener('touchend', clearTimer);
-    postBodyElement.addEventListener('touchcancel', clearTimer);
-}

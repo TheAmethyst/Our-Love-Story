@@ -210,54 +210,30 @@ window.renderGallery = function(images) {
 // Открытие фото на весь экран в формате полароида (С поддержкой долгого нажатия)
 window.openFullScreenImage = function(imageUrl, id) {
     let overlay = document.getElementById('fullscreenOverlay');
-    
     if (!overlay) {
         overlay = document.createElement('div');
         overlay.id = 'fullscreenOverlay';
         overlay.className = 'full-image-overlay';
         document.body.appendChild(overlay);
     }
-
     // Внедряем фото и кнопку удаления внутрь белой обертки-полароида
     overlay.innerHTML = `
         <div class="fullscreen-polaroid-wrapper" onclick="event.stopPropagation()">
             <img src="${imageUrl}">
-            <button class="fullscreen-delete-btn" onclick="deleteGalleryPhoto(${id}); closeFullScreen()">удалить</button>
+            <div class="delete-action-container gallery-delete-wrapper">
+                <button class="micro-trigger-btn" onclick="this.nextElementSibling.classList.toggle('show-action')">⋮</button>
+                <button class="fullscreen-delete-btn" onclick="deleteGalleryPhoto(${id}); closeFullScreen()">удалить</button>
+            </div>
         </div>
     `;
-
     // Закрытие при клике по темному фону (оверлею)
     overlay.onclick = function(e) {
         if (e.target === overlay) {
             closeFullScreen();
         }
     };
-
     overlay.style.display = 'flex';
-
-    // Добавление логики долгого нажатия (зажатия)
-    const wrapper = overlay.querySelector('.fullscreen-polaroid-wrapper');
-    let galleryPressTimer;
-
-    wrapper.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.fullscreen-delete-btn')) return;
-        
-        galleryPressTimer = setTimeout(function() {
-            const btn = wrapper.querySelector('.fullscreen-delete-btn');
-            if (btn) {
-                btn.classList.add('show-action');
-                if (navigator.vibrate) navigator.vibrate(50);
-            }
-        }, 600); // 600 мс удержания для появления кнопки
-    }, { passive: true });
-
-    const clearGalleryTimer = () => clearTimeout(galleryPressTimer);
-    
-    wrapper.addEventListener('touchmove', clearGalleryTimer);
-    wrapper.addEventListener('touchend', clearGalleryTimer);
-    wrapper.addEventListener('touchcancel', clearGalleryTimer);
 };
-
 // Закрытие полноэкранного режима
 window.closeFullScreen = function() {
     const overlay = document.getElementById('fullscreenOverlay');
