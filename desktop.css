@@ -668,6 +668,18 @@ header nav {
     pointer-events: auto;
     text-align: center;
 }
+/* Разрешение многострочного текста в заголовках таймлайна */
+.timeline-title-badge {
+    white-space: normal !important; /* Разрешает перенос текста на новые строки */
+    overflow: visible !important;   /* Отменяет скрытие текста, вышедшего за границы */
+    text-overflow: clip !important; /* Отменяет троеточие (...) */
+    word-wrap: break-word !important; /* Защита от слишком длинных слов без пробелов */
+    height: auto !important;        /* Позволяет прямоугольнику расти вниз */
+    line-height: 1.3 !important;    /* Улучшает читаемость многострочного текста */
+    border-radius: 12px !important; /* Делает углы чуть менее круглыми, что эстетичнее для высоких блоков */
+    padding: 8px 14px !important;   /* Слегка увеличивает внутренние отступы */
+}
+
 /* 7. Кнопка удаления (прямоугольник справа сверху) */
 .timeline-delete-btn {
     position: absolute;
