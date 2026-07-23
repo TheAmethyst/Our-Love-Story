@@ -1037,23 +1037,30 @@ body[data-page="timeline"] header {
 .timeline-event.show-date .timeline-date-overlay {
     opacity: 1 !important;
 }
-/* ===== УДАЛЕНИЕ ВЕРТИКАЛЬНОГО ПОЛЗУНКА В ТАЙМЛАЙНЕ ===== */
+/* ===== ЖЕСТКОЕ УДАЛЕНИЕ ВСЕХ ПОЛЗУНКОВ В ТАЙМЛАЙНЕ ===== */
 
-/* 1. Скрытие самого ползунка (для всех мобильных браузеров) */
-body[data-page="timeline"]::-webkit-scrollbar {
+/* Скрытие ползунков для всех элементов на странице таймлайна (Chrome, Safari, iOS) */
+body[data-page="timeline"]::-webkit-scrollbar,
+body[data-page="timeline"] *::-webkit-scrollbar {
     display: none !important;
-    width: 0 !important;
-    height: 0 !important;
+    width: 0px !important;
+    height: 0px !important;
+    background: transparent !important;
+    -webkit-appearance: none !important;
 }
 
-body[data-page="timeline"] {
-    scrollbar-width: none !important; /* Для Firefox */
+/* Скрытие для Firefox и старых браузеров */
+body[data-page="timeline"],
+body[data-page="timeline"] * {
+    scrollbar-width: none !important;
     -ms-overflow-style: none !important;
 }
 
-/* 2. Блокировка вертикального дергания экрана */
+/* Блокировка вертикального дергания при свайпе остается без изменений */
 .timeline-wrapper {
-    touch-action: pan-x !important; /* Жестко разрешает браузеру реагировать только на свайп влево-вправо */
+    touch-action: pan-x !important;
+}
+
 }
 /* Разрешение многострочного текста в заголовках таймлайна */
 .timeline-title-badge {
