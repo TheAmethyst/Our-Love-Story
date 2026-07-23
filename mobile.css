@@ -1055,3 +1055,13 @@ body[data-page="timeline"] {
 .timeline-wrapper {
     touch-action: pan-x !important; /* Жестко разрешает браузеру реагировать только на свайп влево-вправо */
 }
+/* Разрешение многострочного текста в заголовках таймлайна */
+.timeline-title-badge {
+    white-space: normal !important; /* Разрешает перенос текста на новые строки */
+    overflow: visible !important;   /* Отменяет скрытие текста, вышедшего за границы */
+    text-overflow: clip !important; /* Отменяет троеточие (...) */
+    word-wrap: break-word !important; /* Защита от слишком длинных слов без пробелов */
+    height: auto !important;        /* Позволяет прямоугольнику расти вниз */
+    line-height: 1.3 !important;    /* Улучшает читаемость многострочного текста */
+    padding: 8px 14px !important;   /* Слегка увеличивает внутренние отступы */
+}
